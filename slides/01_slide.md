@@ -26,18 +26,30 @@ Embrace this fact! Structure your code around the URLs
 When designing our API we need to think about different clients. Complex backends with complex business logic or even complex non-functional behavior might be reflected in our API (eg long running transactions, authentication...)
 
 !SLIDE bullets
-# Single endpoint #
+# Rule 3 - Only a single Root Resource #
 
-* Rule 3 - Only a single Root Resource
-
-TODO: examples
+    @@@ java
+    @Path("")
+    public class RootResource {
+        @GET 
+        @Produces("text/plain")
+        public String get() {
+            return "Hello world";
+        }
+    }
 
 .notes REST APIs should have a single wellknown URL. Reflect this by having a single JAX-RS root resource
 
-!SLIDE bullets
-# Path as method name #
+!SLIDE
+# Rule 4 - Path as method name #
 
-* Rule 4 - Use the path as the method name
+    @@@ java
+    @Path("orders")
+    public OrdersResource orders() {
+        return ordersResource;
+    }
+
+!SLIDE
 
 TODO: examples
 
