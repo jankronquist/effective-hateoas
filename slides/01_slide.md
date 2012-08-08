@@ -3,6 +3,75 @@
 # with JAX-RS #
 
 !SLIDE bullets
+# REST #
+
+* Representational state transfer
+* Architectural style defined by Roy Fielding
+* We will only consider HTTP
+
+.notes 
+http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
+In order to obtain a uniform interface, multiple architectural constraints are needed to guide the behavior of components. REST is defined by four interface constraints: identification of resources; manipulation of resources through representations; self-descriptive messages; and, hypermedia as the engine of application state. These constraints will be discussed in Section 5.2.
+
+!SLIDE bullets
+# Resources #
+
+* Anything that can be identified
+
+.notes document, person, todays weather. Very generic, more than just domain objects
+
+!SLIDE bullets
+# Representations #
+
+* A sequence of bytes + metadata
+* Data format is called media type
+* Not the same thing as the resource
+
+!SLIDE bullets
+# Uniform interface #
+
+* Verbs
+* Status codes
+
+.notes a few verbs and status codes with strict semantics. The flexibility comes from identified resources and their representations.
+ 
+.notes designed to be efficient for large-grain hypermedia data transfer
+
+!SLIDE bullets
+# Links for machines #
+
+* Pointer to a target resource
+* Semantic information
+* Optional metadata
+
+.notes
+
+!SLIDE bullets
+# Richardson Maturity Model #
+
+* Level 0
+* Level 1 - Resources
+* Level 2 - HTTP Verbs
+* Level 3 - Hypermedia Controls
+
+.notes Level 2 is CRUD services which is very useful, eg databases, wikis, S3. 
+
+!SLIDE bullets
+# The Hypermedia constraint #
+
+* Client should only know the root URI
+* All state changes driven by links
+
+!SLIDE bullets
+# The 3 tiers have evolved #
+
+* 
+
+.notes A few years ago people thought of a web applications a 3 simple tiers (browser + web server + database). Now we often have different types of clients (web + mobile + integration?). Different backends (the whole NoSQL thing, integration with other systems). 
+When designing our API we need to think about different clients. Complex backends with complex business logic or even complex non-functional behavior might be reflected in our API (eg long running transactions, authentication...)
+
+
+!SLIDE bullets
 # Just a transport mechanism #
 
 * Rule 1 - Focus on what + why
@@ -17,13 +86,6 @@
 .notes The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
 Embrace this fact! Structure your code around the URLs
 
-!SLIDE bullets
-# The 3 tiers have evolved #
-
-* 
-
-.notes A few years ago people thought of a web applications a 3 simple tiers (browser + web server + database). Now we often have different types of clients (web + mobile + integration?). Different backends (the whole NoSQL thing, integration with other systems). 
-When designing our API we need to think about different clients. Complex backends with complex business logic or even complex non-functional behavior might be reflected in our API (eg long running transactions, authentication...)
 
 !SLIDE bullets
 # Rule 3 - Only a single Root Resource #
