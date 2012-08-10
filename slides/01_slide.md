@@ -71,13 +71,75 @@ In order to obtain a uniform interface, multiple architectural constraints are n
 When designing our API we need to think about different clients. Complex backends with complex business logic or even complex non-functional behavior might be reflected in our API (eg long running transactions, authentication...)
 
 
+
+!SLIDE bullets
+#Part I: Construction
+
+
+!SLIDE bullets
+#JAX-RS
+
+* Provides basic protocol features
+* Low level granularity
+* Not much help developing REST level 3
+
+.notes You can create a huge mess by just adding these annotation on your
+classes and methods. Basically it is too general to be usable in developing
+REST level 3. 
+
+!SLIDE bullets
+# URL Structure
+
+* URL Structure should have a meaning reflected in the code
+* A single root resource
+* Sub resources 
+* Path as method name
+
+.notes This brings order to the resources. With these guideline implemented you cannot
+"get lost" when browsing the API - it is always clear what method you are invoking or
+which resource you are located in.
+
+!SLIDE bullets
+# Constraints On Methods
+
+* A very convenient way of controlling enablement
+* Annotations on methods, e.g. @ItemsInShoppingCart
+* Hierarchical enforced constraint rules
+
+.notes With the difinition of the resources in a resource tree, the constrains becomes
+a way of enforcing the rules further down in the tree. 
+
+!SLIDE bullets
+# Link building
+
+* Prefered is to have absolute links
+* It should be easy
+* Type safe: new Link( root().product(17).purchase() )
+
+!SLIDE bullets
+# Link Relation
+
+* As a prerequisite links must define their semantic meaning
+* Done in with the 'rel' attribute
+* Describes the semantic relationship between the resource and what is linked
+
+ 
+
+
+!SLIDE bullets
+# Part II: TEST
+
+
+
+
+
 !SLIDE bullets
 # Just a transport mechanism #
 
 * Rule 1 - Focus on what + why
 
 .notes Uncle Bob - The web is just a transport mechanism. Focus on your application domain and business logic (why + what), not the how
-
+x
 !SLIDE bullets
 # URL structure #
 
