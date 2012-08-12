@@ -9,8 +9,7 @@
 * Architectural style defined by Roy Fielding
 * We will only consider HTTP
 
-.notes 
-http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
+.notes http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
 In order to obtain a uniform interface, multiple architectural constraints are needed to guide the behavior of components. REST is defined by four interface constraints: identification of resources; manipulation of resources through representations; self-descriptive messages; and, hypermedia as the engine of application state. These constraints will be discussed in Section 5.2.
 
 !SLIDE bullets
@@ -43,8 +42,6 @@ In order to obtain a uniform interface, multiple architectural constraints are n
 * Pointer to a target resource
 * Semantic information
 * Optional metadata
-
-.notes
 
 !SLIDE bullets
 # Richardson Maturity Model #
@@ -103,7 +100,7 @@ which resource you are located in.
 # Constraints On Methods
 
 * A very convenient way of controlling enablement
-* Annotations on methods, e.g. @ItemsInShoppingCart
+* Annotations on methods, e.g. @HasItemsInShoppingCart
 * Hierarchical enforced constraint rules
 
 .notes With the difinition of the resources in a resource tree, the constrains becomes
@@ -129,9 +126,126 @@ a way of enforcing the rules further down in the tree.
 !SLIDE bullets
 # Part II: TEST
 
+!SLIDE bullets
+# Simplicity
+
+* Simple to browse
+* No need to maintain API documentation
+* Javascript developers don't need to ask or inspect code
+
+.notes Really big advantage to have a self-documenting API. We added @Doc("") to
+further add some documentation to the API.
+
+!SLIDE bullets
+# Genric Client - HTML
+
+* The browser is the generic client (prefered media type is text/html)
+* Any resource can be rendered in browser
+* Looks like ugly web site
+
+!SLIDE bullets
+# Pros/Cons HTML
+
+* +straigt forward
+* +works in lynx
+* -incorrect verbs for PUT and DELETE
+* -different API than a real mediatype
+* -unclear separation between normal and generic client
+
+.notes This is the only one we have used and it is very useful. But the
+incorrect verbs can lead to misuse of the API - we have seen javascript client
+revert to text/html "to make it work"
+
+!SLIDE bullets
+# Generic Client - Javascript
+
+* The browser is the generic client
+* The root resource returns generic javascript client
+* Only the root resource can be rendered in a browser
+
+.notes Since media type "text/html" is not supported only the root resource
+can be rendered in the browser. The root resource handles the serving of the 
+generic client and functions as the starting point of the interaction.
+
+!SLIDE bullets
+# Pros/Cons Javascript
+
+* +clear separation between normal and generic client
+* +operates the correct way, i.e. no overloading of verbs
+* -needs framework support 
+
+.notes This is a better way for a generic client. You can clearly see the status codes
+and input/output values. You always use the correct verbs. BUT the framework needs to 
+have a options such that links are described fully: rel, href, method, parameters. Otherwise
+the client wouldn't know how to invoke methods.
 
 
+!SLIDE bullets
+# Part III: Consumption
 
+
+!SLIDE bullets
+# Consumption definition
+
+* External client consuming the API
+* Client is NOT when using mediatype text/html on the API
+
+.notes It is common in the CRUD REST frameworks that the REST API IS the client. It seems like a really bad idea to mix your API with presentation logic. And there may not be a 1-1 relation
+between a resource and a view.
+
+
+!SLIDE bullets
+# A Client
+
+* Generic knowledge: how to recognize a link
+* Documented knowledge: parameters + media types + rels
+* Root URL
+
+.notes the generic knowledge is how to parse the discovered resources from the API, mainly 
+how to recognize links. The documented knowledge is about how a specific method is supposed
+to be invoked - e.g. what parameter, what method.
+
+!SLIDES bullets 
+# State Machine
+
+* Client acts like a state machine
+* Discovery on the API
+* Based on the discovery presents what to do next for the user
+
+!SLIDE bullets
+# A Step Back
+
+* Classic (and level 2) approach is to let the client know:
+* All href for methods
+* All server side state rules
+
+.notes In this case the client must replicate all server side logic to know which operation is enabled for a given state. 
+
+!SLIDE bullets
+# A Step Forward
+
+* When leveraging level 3 simply base your client on what you discover
+* e.g. If you don't see the logout link, don't display the logout button
+
+.notes When doing this the client focus becomes handling the presentation. That is REST is like a detail in the client code. 
+
+
+!SLIDE bullets
+# Conslusion
+
+* Pros: 
+* Less repeated business logic in client, meaning client can handle change in logic
+* Very easy to test
+* Auto documentation
+* Cons: 
+* Runtime overhead
+* Overhead in producing code (missing framework)
+
+.notes Having written both level 2 and level 3 clients, there is no mistake - level 3 is vastly simpler. But the framework is really missing. The benefit of producing level 3 does not obviously outweigh the benefits you get - that is probably the reason why level 3 REST is not implemented widely. 
+
+
+!SLIDE bullets
+# Questions
 
 !SLIDE bullets
 # Just a transport mechanism #
@@ -186,15 +300,5 @@ Me: "What kind of problems are you having?"
 Him: "The main problem we have is that the server guys don't really care what we are trying to accomplish in the UI. They just publish resources that they think is useful and we have to retrieve a bunch of resources to create a meaningful view. And the other day it turned out that this boolean had to be changed into an enum, which of course affected what resources to retrieve."
 
 
-!SLIDE
 
-TODO: examples
 
-.notes 
-
-------------------------------
-
-TODO:
-* What is a resource? Difference between resources and domain objects
-* Commads vs queries
-* Subresources, rels
