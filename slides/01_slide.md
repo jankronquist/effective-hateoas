@@ -62,14 +62,14 @@ In order to obtain a uniform interface, multiple architectural constraints are n
 !SLIDE bullets
 # The 3 tiers have evolved #
 
-* 
+* TODO: Image
 
 .notes A few years ago people thought of a web applications a 3 simple tiers (browser + web server + database). Now we often have different types of clients (web + mobile + integration?). Different backends (the whole NoSQL thing, integration with other systems). 
 When designing our API we need to think about different clients. Complex backends with complex business logic or even complex non-functional behavior might be reflected in our API (eg long running transactions, authentication...)
 
 
 
-!SLIDE bullets
+!SLIDE subsection
 #Part I: Construction
 
 
@@ -77,8 +77,10 @@ When designing our API we need to think about different clients. Complex backend
 #JAX-RS
 
 * Provides basic protocol features
-* Low level granularity
-* Not much help developing REST level 3
+* Great API, very flexible
+* TODO: example
+
+.notes Not much help developing REST level 3
 
 .notes You can create a huge mess by just adding these annotation on your
 classes and methods. Basically it is too general to be usable in developing
@@ -87,7 +89,7 @@ REST level 3.
 !SLIDE bullets
 # URL Structure
 
-* URL Structure should have a meaning reflected in the code
+* Meaning reflected in the code
 * A single root resource
 * Sub resources 
 * Path as method name
@@ -96,6 +98,70 @@ REST level 3.
 "get lost" when browsing the API - it is always clear what method you are invoking or
 which resource you are located in.
 
+.notes The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
+Embrace this fact! Structure your code around the URLs
+
+!SLIDE
+# Only a single Root Resource #
+
+    @@@ java
+    @Path("")
+    public class RootResource {
+        @GET 
+        @Produces("text/plain")
+        public String get() {
+            return "Hello world";
+        }
+    }
+
+.notes REST APIs should have a single wellknown URL. Reflect this by having a single JAX-RS root resource
+
+!SLIDE
+# Path as method name #
+
+    @@@ java
+    @Path("orders")
+    public OrdersResource orders() {
+        return ordersResource;
+    }
+
+
+!SLIDE small
+# Sub resource #
+
+    @@@ java
+  	@Path("{id}")
+  	public OrderResource order(@PathParam("id") String id) {
+  		return new OrderResource(id);
+  	}
+
+!SLIDE bullets
+# Link building
+
+* Prefer absolute links
+* It should be easy
+
+.notes Since JAX-RS don't distinguish between trailing slash relative links must be built differently depending on how the resource was accessed
+http://java.net/jira/browse/JAX_RS_SPEC-5
+
+!SLIDE bullets
+# Typesafe link building
+
+* TODO
+* new Link( root().product(17).purchase() )
+
+!SLIDE bullets
+# Link Relation
+
+* <link rel="subresource" href="/api/orders">
+* Done in with the 'rel' attribute
+* Describes the semantic relationship between the resource and target
+
+!SLIDE bullets
+# Resource reflection
+
+* TODO
+
 !SLIDE bullets
 # Constraints On Methods
 
@@ -103,27 +169,10 @@ which resource you are located in.
 * Annotations on methods, e.g. @HasItemsInShoppingCart
 * Hierarchical enforced constraint rules
 
-.notes With the difinition of the resources in a resource tree, the constrains becomes
+.notes With the definition of the resources in a resource tree, the constrains becomes
 a way of enforcing the rules further down in the tree. 
 
-!SLIDE bullets
-# Link building
-
-* Prefered is to have absolute links
-* It should be easy
-* Type safe: new Link( root().product(17).purchase() )
-
-!SLIDE bullets
-# Link Relation
-
-* As a prerequisite links must define their semantic meaning
-* Done in with the 'rel' attribute
-* Describes the semantic relationship between the resource and what is linked
-
- 
-
-
-!SLIDE bullets
+!SLIDE subsection
 # Part II: TEST
 
 !SLIDE bullets
@@ -146,7 +195,7 @@ further add some documentation to the API.
 !SLIDE bullets
 # Pros/Cons HTML
 
-* +straigt forward
+* +straight forward
 * +works in lynx
 * -incorrect verbs for PUT and DELETE
 * -different API than a real mediatype
@@ -180,7 +229,7 @@ have a options such that links are described fully: rel, href, method, parameter
 the client wouldn't know how to invoke methods.
 
 
-!SLIDE bullets
+!SLIDE subsection
 # Part III: Consumption
 
 
@@ -259,33 +308,6 @@ x
 
 * Rule 2 - Structure your code around the URLs
 
-.notes The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
-Embrace this fact! Structure your code around the URLs
-
-
-!SLIDE bullets
-# Rule 3 - Only a single Root Resource #
-
-    @@@ java
-    @Path("")
-    public class RootResource {
-        @GET 
-        @Produces("text/plain")
-        public String get() {
-            return "Hello world";
-        }
-    }
-
-.notes REST APIs should have a single wellknown URL. Reflect this by having a single JAX-RS root resource
-
-!SLIDE
-# Rule 4 - Path as method name #
-
-    @@@ java
-    @Path("orders")
-    public OrdersResource orders() {
-        return ordersResource;
-    }
 
 !SLIDE bullets
 # Why links #
