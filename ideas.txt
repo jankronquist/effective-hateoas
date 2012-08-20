@@ -88,3 +88,18 @@ Me: "What kind of problems are you having?"
 Him: "The main problem we have is that the server guys don't really care what we are trying to accomplish in the UI. They just publish resources that they think is useful and we have to retrieve a bunch of resources to create a meaningful view. And the other day it turned out that this boolean had to be changed into an enum, which of course affected what resources to retrieve."
 
 
+---------------
+
+ROCA-style
+* must-html/must-jslimits/mustnot-jsengine - Having a HTML representation of your resources is useful. The problem is not viewing resources, but interacting with the resources.
+- Javascript developers may be confused with the API since the text/html and application/json mediatypes are different
+- Since browsers have adopted certain conventions for HTTP status codes their meaning are reduced.
+
+TODO:
+* Är det möjligt att använda PUT/DELETE från HTML forms?
+
+
+
+
+
+
