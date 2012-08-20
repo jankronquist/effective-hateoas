@@ -1,3 +1,6 @@
+!SLIDE subsection
+# DRAFT #
+
 !SLIDE 
 # Effective HATEOAS #
 # with JAX-RS #
@@ -87,7 +90,17 @@ classes and methods. Basically it is too general to be usable in developing
 REST level 3. 
 
 !SLIDE bullets
-# URL Structure
+# URLs
+
+* Level 3 clients should not care
+* Menaningful only for server developer
+
+.notes Since the clients only follow links, the format of the actual target URLs are not relevant
+The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
+Embrace this fact! Structure your code around the URLs
+
+!SLIDE bullets
+# URL recommendations
 
 * Meaning reflected in the code
 * A single root resource
@@ -97,9 +110,6 @@ REST level 3.
 .notes This brings order to the resources. With these guideline implemented you cannot
 "get lost" when browsing the API - it is always clear what method you are invoking or
 which resource you are located in.
-
-.notes The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
-Embrace this fact! Structure your code around the URLs
 
 !SLIDE
 # Only a single Root Resource #
@@ -136,6 +146,20 @@ Embrace this fact! Structure your code around the URLs
   	}
 
 !SLIDE bullets
+# URL Structure
+
+* Make most links point to child resources
+
+.notes use child resources whenever a parent creates links to the child. Structure your URLs so that most links point to child resources. 80/20 rule
+
+!SLIDE bullets
+# URL examples
+
+* `/` links to `/product`
+* `/product` links to `/product/123`
+* `/product/123` links to `/product/123/purchase`
+
+!SLIDE bullets
 # Link building
 
 * Prefer absolute links
@@ -151,11 +175,11 @@ http://java.net/jira/browse/JAX_RS_SPEC-5
 * new Link( root().product(17).purchase() )
 
 !SLIDE bullets
-# Link Relation
+# Link semantics
 
 * <link rel="subresource" href="/api/orders">
 * Done in with the 'rel' attribute
-* Describes the semantic relationship between the resource and target
+* Describes the relationship between the resource and target
 
 !SLIDE bullets
 # Resource reflection
