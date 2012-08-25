@@ -5,46 +5,73 @@
 # Effective HATEOAS #
 # with JAX-RS #
 
-!SLIDE bullets
-# REST #
+.notes The thing that programmers like about REST is the simplicity. So when architects start talking about hypermedia and all kinds of weird constraints many developers just stops listening. Too complex. Too much work. We want to show that hypermedia is also simple and that there are ways of minimizing the amount of work necessery. 
 
-* Representational state transfer
-* Architectural style defined by Roy Fielding
-* We will only consider HTTP
-
-.notes http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
-In order to obtain a uniform interface, multiple architectural constraints are needed to guide the behavior of components. REST is defined by four interface constraints: identification of resources; manipulation of resources through representations; self-descriptive messages; and, hypermedia as the engine of application state. These constraints will be discussed in Section 5.2.
+.notes REST is more than HTTP, but for the purposes of this presentation we will only consider HTTP.
 
 !SLIDE bullets
-# Resources #
+# Example domain #
 
-* Anything that can be identified
+* A web shop for e-books
+* Books - isbn, name, price, authors ...
 
-.notes document, person, todays weather. Very generic, more than just domain objects
-
-!SLIDE bullets
-# Representations #
-
-* A sequence of bytes + metadata
-* Data format is called media type
-* Not the same thing as the resource
 
 !SLIDE bullets
 # Uniform interface #
 
-* Verbs
-* Status codes
+.notes The simplicity of REST comes from the uniform interface. Once you know this you can interact with any resource. For HTTP the uniform interface consists of:
 
-.notes a few verbs and status codes with strict semantics. The flexibility comes from identified resources and their representations.
- 
-.notes designed to be efficient for large-grain hypermedia data transfer
+    an initial line
+    header lines
+    blank line
+    optional message body
+
+.notes Constrast this to binary protocols where you can't see whats going on, or SOAP that is built on top of HTTP.
 
 !SLIDE bullets
-# Links for machines #
+# Example request #
 
-* Pointer to a target resource
-* Semantic information
-* Optional metadata
+.notes The HTTP uniform interface defines a number of verbs and status codes with very specific semantics. For example a GET request cannot modify a resource. 
+
+.notes The flexibility comes from identified resources and their representations. The verbs are designed to be efficient for large-grain hypermedia data transfer
+
+GET /api/books/9780596805838
+
+200 OK
+Content-Type: application/json;charset=utf-8
+
+{
+  "isbn": "9780596805838",
+  "title": "REST in Practice",
+  "authors": [
+    "Jim Webber",
+    "Savas Parastatidis",
+    "Ian Robinson"
+  ],
+  "publisher": "O'Reilly Media",
+  "supplier_id": "ELIB",
+  "price": "31.99",
+  "language": "English",
+  "imageURL": "/images/9780596805838",
+  "downloadable_formats": [ 
+    "EPUB",
+    "PDF"
+  ],
+}
+
+.notes When performing a HTTP request besides the verb you must also identify the resource. More about resource identifiers later on.
+
+.notes The response can contain a representation of a the resource and the format of the representation is called a mediatype.
+
+!SLIDE bullets incremental
+# Resources are not domain objects #
+
+* `/book/123` = a specific book
+* `/book` = a collection of books
+* `/book/123/buy` = identifies that the user wants to buy the book
+* `/ownedbooks` = a collection of books that the user owns
+
+.notes Anything that can be identified. document, person, todays weather. Very generic, more than just domain objects
 
 !SLIDE bullets
 # Richardson Maturity Model #
@@ -54,7 +81,16 @@ In order to obtain a uniform interface, multiple architectural constraints are n
 * Level 2 - HTTP Verbs
 * Level 3 - Hypermedia Controls
 
-.notes Level 2 is CRUD services which is very useful, eg databases, wikis, S3. 
+.notes Level 2 is CRUD services which is very useful, eg databases, S3. 
+
+.notes Level 3 means that the resource representation contains links to other resources
+
+!SLIDE bullets
+# Links for machines #
+
+* Pointer to a target resource
+* Semantic information
+* Optional metadata
 
 !SLIDE bullets
 # The Hypermedia constraint #
@@ -319,6 +355,5 @@ to be invoked - e.g. what parameter, what method.
 
 !SLIDE bullets
 # Questions
-
 
 
