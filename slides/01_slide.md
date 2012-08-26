@@ -29,7 +29,9 @@
 .notes Constrast this to binary protocols where you can't see whats going on, or SOAP that is built on top of HTTP.
 
 !SLIDE bullets
-# Example request #
+# Example request/response #
+
+.notes AVAILABLE IN KEYNOTE
 
 .notes The HTTP uniform interface defines a number of verbs and status codes with very specific semantics. For example a GET request cannot modify a resource. 
 
@@ -85,18 +87,46 @@ Content-Type: application/json;charset=utf-8
 
 .notes Level 3 means that the resource representation contains links to other resources
 
+!SLIDE small
+# Hypermedia #
+
+    @@@ xml
+    <link rel="payment" href="http://example.org/product/123/buy"/>
+
+    @@@ javascript
+    "_links": {
+        "payment": { 
+          "href": "/product/123/buy", 
+          "title": "Köp" 
+        },
+      },
+
+.notes Hypermedia is just links, typically embedded in the representation. Besides the target URI (actually IRI) a link must include semantic information to allow automatic processing. This is done using the rel attribute that describes the relationship between the current resource and the target resource. Links can also include other attributes, for example "title" which is a human-readable identifier, "name" to distinguish between links with the same "rel".
+
+.notes Since JAX-RS don't distinguish between trailing slash relative links must be built differently depending on how the resource was accessed (http://java.net/jira/browse/JAX_RS_SPEC-5)
+
 !SLIDE bullets
-# Links for machines #
+# Level 3 example #
 
-* Pointer to a target resource
-* Semantic information
-* Optional metadata
+* TODO: Image showing a graph of related resources
+
+.notes AVAILABLE IN KEYNOTE
+
+.notes Go through an example where a client navigates through a set of resources using links to purchase and download a book.
+
+.notes The application state is where in all this the client currently has navigated and where the client can go from here.
+
+.notes The Hypermedia constraint means that client should only know the root URI and all state changes driven by links.
 
 !SLIDE bullets
-# The Hypermedia constraint #
+# Level 3 consequences #
 
-* Client should only know the root URI
-* All state changes driven by links
+* Clients don't care about URL structure
+* Clients are DRY
+
+.notes Since the clients only follow links they don't care about how the URLs are structured. When constructing the server we are free to chose a structure that fits our purposes.
+
+.notes Clients don't have to repeat business logic. If a link is there it means the user can navigate the link. If a link is not there it means that the action is not available.
 
 !SLIDE bullets
 # The 3 tiers have evolved #
@@ -126,22 +156,16 @@ classes and methods. Basically it is too general to be usable in developing
 REST level 3. 
 
 !SLIDE bullets
-# URLs
-
-* Level 3 clients should not care
-* Menaningful only for server developer
-
-.notes Since the clients only follow links, the format of the actual target URLs are not relevant
-The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
-Embrace this fact! Structure your code around the URLs
-
-!SLIDE bullets
-# URL recommendations
+# Path recommendations
 
 * Meaning reflected in the code
 * A single root resource
 * Sub resources 
 * Path as method name
+
+.notes Since the clients only follow links, the format of the actual target URLs are not relevant
+The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
+Embrace this fact! Structure your code around the URLs
 
 .notes This brings order to the resources. With these guideline implemented you cannot
 "get lost" when browsing the API - it is always clear what method you are invoking or
