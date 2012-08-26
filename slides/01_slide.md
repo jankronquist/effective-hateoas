@@ -156,6 +156,15 @@ classes and methods. Basically it is too general to be usable in developing
 REST level 3. 
 
 !SLIDE bullets
+#JAX-RS challenges
+
+* Resource path structure
+* Hypermedia creation
+* TODO
+
+.notes TODO present the challenges that we try to solve
+
+!SLIDE bullets
 # Path recommendations
 
 * Meaning reflected in the code
@@ -205,56 +214,90 @@ which resource you are located in.
   		return new OrderResource(id);
   	}
 
-!SLIDE bullets
-# URL Structure
+!SLIDE small
+# Classic JAX-RS #
 
-* Make most links point to child resources
+    @@@ java
+    @Path("book") @GET
+    public BooksDTO getBooks() {}
+
+    @Path("book/{isbn}") @GET
+    public BookDTO getBook(@PathParam("isbn") String isbn) {}
+
+    @Path("buy") @POST
+    public ReceiptDTO buy(@FormParam("isbn") String isbn) {}
+    
+.notes Paths are created on an ad hoc basis, aiming for nice-looking URI:s that a client can understand.
+
+!SLIDE small
+# Hypermedia style JAX-RS #
+
+    @@@ java
+    @Path("")
+    class RootResource {}
+    class BooksResource {
+      @GET
+      public BooksDTO get() {}
+
+      @Path("{isbn}")
+      public BookResource item() {}
+    }
+    class BookResource {
+      @GET
+      public BookDTO get() {}
+  		
+      @Path("buy") @POST
+      public ReceiptDTO buy() {}
+    }
+
+.notes Related functionality is grouped together.
 
 .notes use child resources whenever a parent creates links to the child. Structure your URLs so that most links point to child resources. 80/20 rule
 
-!SLIDE bullets
-# URL examples
+.notes TODO: How to motivate the deviation from standard JAX-RS? There are lots of things that probably don't work when using subresources...
 
-* `/` links to `/product`
-* `/product` links to `/product/123`
-* `/product/123` links to `/product/123/purchase`
+!SLIDE small
+# Resource reflection
 
-!SLIDE bullets
-# Link building
+    @@@ java
+    class BookResource {
+      @GET
+      public BookDTO get() {}
+	
+      @Path("buy") @POST
+      @Rel("payment")
+      public ReceiptDTO buy() {}
+    }
 
-* Prefer absolute links
-* It should be easy
+.notes By using reflection we can generate relevant links. For example when handling a request to get a book we can generate a link to the buy resource. 
 
-.notes Since JAX-RS don't distinguish between trailing slash relative links must be built differently depending on how the resource was accessed
-http://java.net/jira/browse/JAX_RS_SPEC-5
+!SLIDE small
+# Constraints
+
+    @@@ java
+    class BookResource {
+      @Path("buy") @POST
+      @Rel("payment")
+      @HasBoughtBook(false)
+      public ReceiptDTO buy() {}
+
+      @Path("download") @GET
+      @Rel("enclosure")
+      @HasBoughtBook(true)
+      public InputStream download() {}
+    }
+
+
+.notes Hierarchical enforced constraint rules. A very convenient way of controlling enablement
+
+.notes With the definition of the resources in a resource tree, the constrains becomes
+a way of enforcing the rules further down in the tree. 
 
 !SLIDE bullets
 # Typesafe link building
 
 * TODO
 * new Link( root().product(17).purchase() )
-
-!SLIDE bullets
-# Link semantics
-
-* <link rel="subresource" href="/api/orders">
-* Done in with the 'rel' attribute
-* Describes the relationship between the resource and target
-
-!SLIDE bullets
-# Resource reflection
-
-* TODO
-
-!SLIDE bullets
-# Constraints On Methods
-
-* A very convenient way of controlling enablement
-* Annotations on methods, e.g. @HasItemsInShoppingCart
-* Hierarchical enforced constraint rules
-
-.notes With the definition of the resources in a resource tree, the constrains becomes
-a way of enforcing the rules further down in the tree. 
 
 !SLIDE subsection
 # Part II: TEST
