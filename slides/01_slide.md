@@ -254,7 +254,7 @@ which resource you are located in.
 
 .notes use child resources whenever a parent creates links to the child. Structure your URLs so that most links point to child resources. 80/20 rule
 
-.notes TODO: How to motivate the deviation from standard JAX-RS? There are lots of things that probably don't work when using subresources...
+.notes TODO: How to motivate the deviation from standard JAX-RS? There are lots of things that probably don't work when using subresources... eg Link.fromResourceMethod
 
 !SLIDE small
 # Resource reflection
