@@ -287,11 +287,35 @@ which resource you are located in.
       public InputStream download() {}
     }
 
+.notes Since we generate links by using reflection we can also add declarative constraints that specify if the link should be included or not. 
 
-.notes Hierarchical enforced constraint rules. A very convenient way of controlling enablement
+!SLIDE small
+# Constraints and subresources
 
-.notes With the definition of the resources in a resource tree, the constrains becomes
-a way of enforcing the rules further down in the tree. 
+    @@@ java
+    public class RootResource {
+      @Path("admin")
+      @HasPrivilege("administrator")
+      public AdminResource admin() {
+          return adminResource;
+      }
+    }
+
+.notes Since we use subresources we can specify constraints on the methods for retrieving subresources and we can declarative control what resources are available!
+
+!SLIDE bullets incremental
+# Framework support
+
+.notes We have tried different approaches to get framework support the link generation and the constraints.
+
+.notes We built our own webframework that gradually supported some parts of the JAX-RS standard. Initially this seemed to work quite well, but as the requirements for entity marshalling got more complex and more control of the communication was needed, we realized that it would be much better to re-use an existing implementation and allow underlying abstraction leak up to allow more control.
+
+.notes The next approach was to use bytecode manipulation to add constraint validation, automatically add links and also add some methods that were needed
+
+* Own webframework
+* Bytecode manipulation
+* JAX-RS 2.0
+
 
 !SLIDE bullets
 # Typesafe link building
