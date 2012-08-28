@@ -145,40 +145,144 @@ When designing our API we need to think about different clients. Complex backend
 !SLIDE bullets
 #JAX-RS
 
+* Using JAX-RS 1.1
 * Provides basic protocol features
 * Great API, very flexible
-* TODO: example
 
-.notes Not much help developing REST level 3
 
-.notes You can create a huge mess by just adding these annotation on your
+.notes Great API which is easy to use but quite low level
+
+!SLIDE 
+# JAX-RS Example
+
+    @@@ java
+    @Path("somepath")
+    public class MyResource {
+        @PATH("/other/path/dosomething")
+        @POST 
+        @Produces("application/json")
+        public String doSomething() {
+            return "Hello world";
+        }
+    }
+
+.notes Not much help developing REST level 3. You can create a huge mess by just adding these annotation on your
 classes and methods. Basically it is too general to be usable in developing
 REST level 3. 
+
 
 !SLIDE bullets
 #JAX-RS challenges
 
-* Resource path structure
-* Hypermedia creation
-* TODO
+* How do you link things together?
+* How do you provide meaning to the resource structure?
+* How do you add restrictions in your resources (admin rights etc)? Or just basic control flow?
 
-.notes TODO present the challenges that we try to solve
+.notes JAX-RS and it's @Path is really just a relay mechanism, so you have no help in linking 
+your resources together which is a REST primer. Using bare bone JAX-RS the hypermedia constraint 
+becomes a bigger burden than the benefits. 
 
 !SLIDE bullets
-# Path recommendations
+# Build your own framework
 
-* Meaning reflected in the code
-* A single root resource
-* Sub resources 
-* Path as method name
+* Inspiration from project Streamflow
+* Resource DSL 
+* 1-1 reflection of resources and URL
+* Single root resource
+* Everything is linked from root
+* Upon every invocation the path is evaluated through the resource tree
 
-.notes Since the clients only follow links, the format of the actual target URLs are not relevant
-The URL structure is only relevant for the server developer. It often reflects the framework or how the server logic is structured. Client applications do not care!
-Embrace this fact! Structure your code around the URLs
+.notes We really felt these concepts were missing and it turned out no to be too hard to accomplish 
 
-.notes This brings order to the resources. With these guideline implemented you cannot
-"get lost" when browsing the API - it is always clear what method you are invoking or
-which resource you are located in.
+!SLIDE bullits
+# Book Shop Demo
+
+.notes show the book shop example. Show the code and show the HTML interface. See the resemblance and try invoking a command and explain the 405 roundtrip. Self-documentation should be mentioned.
+
+!SLIDE 
+# Root Resource
+
+    @@@ java
+    public class RootResource 
+         implements Resource {
+        
+        public Resource books() {
+            return new BooksResource();
+        }
+    }
+
+!SLIDE 
+
+    @@@ java
+    public class BooksResource 
+        implements CollectionsResource<Link> {
+        
+        public Resource item(String id) {
+           return new BookResource( id );
+        }
+        
+        public List<Link> items() {
+           // lookup books from repository 
+           return LinksBuilder.asList( books );
+        }
+    }
+
+!SLIDE
+
+    @@@ java
+    public class BookResource
+        implements BookResource {
+             
+        Book book;
+        public BookResource( String id ) {
+            // lookup particular book
+            book = ...
+            if ( book == null ) // throw 404
+        }
+
+        public void buy( PurchaseDTO dto ) {
+            ...
+        }
+
+        public InputStream download() {...}
+     }
+
+!SLIDE 
+# Browse it!
+
+.notes Notice the enablement in the Book resource - you have to buy it before you can 
+download it.
+
+!SLIDE 
+    @@@ java
+    @HasBoughtBook(false)
+    public void buy(PurchaseDTO dto) { ... }
+
+    @HasBoughtBook(true)
+    public InputStream download() {...}
+    
+
+!SLIDE bullets
+# Framework advantages
+
+* No mess in the resources
+* POJO code because of conventions
+* Discovery and documentation for free
+* Hierarchical constraints easy
+
+.notes Quite small framework to implements which turned very popular in our organization. We thought
+we were done with REST but these conventions might be very handy and maybe even a prerequisite for
+a REST framework but REST is more than URL conventions, namely hypermedia.
+
+!SLIDE bullets
+# Framework disadvantages
+
+* No JAX-RS dependency so,
+* Request/Response handling is re-implemented
+* Media-type extension impossible
+
+.notes This seems only solvable by combining JAX-RS 2.0 and Forest.
+
 
 !SLIDE
 # Only a single Root Resource #
