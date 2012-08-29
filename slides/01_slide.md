@@ -283,6 +283,18 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 
 .notes This seems only solvable by combining JAX-RS 2.0 and Forest.
 
+!SLIDE bullets
+# REST level 3 Framework Should
+
+* Enforce resources inter-linking
+* Support notion of root resource
+* Be mediatype flexible (easy to define own mediatype)
+* Use the resource structure when mapping the URL to resource
+
+.notes Interlinking is vastly overlooked in the REST community, yet being the key point in 
+Fieldings dissertation: You must be able to consume a REST API without any other knowledge 
+than generic understanding of standard mediatypes and a starting URL. 
+
 
 !SLIDE
 # Only a single Root Resource #
