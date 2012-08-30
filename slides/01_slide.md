@@ -269,6 +269,7 @@ download it.
 * POJO code because of conventions
 * Discovery and documentation for free
 * Hierarchical constraints easy
+* Intuitive and effective
 
 .notes Quite small framework to implements which turned very popular in our organization. We thought
 we were done with REST but these conventions might be very handy and maybe even a prerequisite for
