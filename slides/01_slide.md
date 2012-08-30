@@ -303,6 +303,8 @@ which resource you are located in.
 
 .notes Since we use subresources we can specify constraints on the methods for retrieving subresources and we can declarative control what resources are available!
 
+.notes How to implement this using JAX-RS?
+
 !SLIDE bullets incremental
 # Framework support
 
