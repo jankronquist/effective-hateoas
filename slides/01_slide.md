@@ -158,7 +158,7 @@ Content-Type: application/json;charset=utf-8
 .notes Clients don't have to repeat business logic. If a link is there it means the user can navigate the link. If a link is not there it means that the action is not available.
 
 !SLIDE subsection
-# Hypermedia API:s #
+# Example #
 
 
 !SLIDE bullets
@@ -229,23 +229,24 @@ download it.
 !SLIDE bullets
 # Framework advantages
 
-* No mess in the resources
-* POJO code because of conventions
 * Discovery and documentation for free
-* Hierarchical constraints easy
-* Intuitive and effective
+* Conventions resulted in clean code 
+* Hierarchical constraints
 
 .notes Quite small framework to implements which turned very popular in our organization. We thought
 we were done with REST but these conventions might be very handy and maybe even a prerequisite for
 a REST framework but REST is more than URL conventions, namely hypermedia.
 
+
 !SLIDE bullets
 # Framework disadvantages
 
-* Request/Response handling is re-implemented
-* Media-type extension impossible
+* Very basic HTTP support
+* No support for mediatypes, headers
 * Only child linking easy
 * No separation of generic client
+
+.notes The framework served our purposes very well and we could live with these limitations
 
 .notes This seems only solvable by combining JAX-RS 2.0 and Forest.
 
@@ -261,6 +262,9 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 .notes Interlinking is vastly overlooked in the REST community, yet being the key point in 
 Fieldings dissertation: You must be able to consume a REST API without any other knowledge 
 than generic understanding of standard mediatypes and a starting URL. 
+
+!SLIDE subsection
+# Recommendations #
 
 
 !SLIDE
@@ -313,7 +317,7 @@ than generic understanding of standard mediatypes and a starting URL.
 .notes Paths are created on an ad hoc basis, aiming for nice-looking URI:s that a client can understand.
 
 !SLIDE small
-# Hypermedia style JAX-RS #
+# Resource structure #
 
     @@@ java
     @Path("")
@@ -388,63 +392,27 @@ than generic understanding of standard mediatypes and a starting URL.
 
 .notes How to implement this using JAX-RS?
 
-!SLIDE bullets incremental
-# Framework support
-
-.notes We have tried different approaches to get framework support the link generation and the constraints.
-
-.notes We built our own webframework that gradually supported some parts of the JAX-RS standard. Initially this seemed to work quite well, but as the requirements for entity marshalling got more complex and more control of the communication was needed, we realized that it would be much better to re-use an existing implementation and allow underlying abstraction leak up to allow more control.
-
-.notes The next approach was to use bytecode manipulation to add constraint validation, automatically add links and also add some methods that were needed
-
-* Own webframework
-* Bytecode manipulation
-* JAX-RS 2.0
-
-
-!SLIDE bullets
-# Typesafe link building
-
-* TODO
-* new Link( root().product(17).purchase() )
-
 !SLIDE subsection
-# Part II: TEST
-
-!SLIDE bullets
-# Simplicity
-
-* Simple to browse
-* No need to maintain API documentation
-* Javascript developers don't need to ask or inspect code
-
-.notes Really big advantage to have a self-documenting API. We added @Doc("") to
-further add some documentation to the API.
-
-!SLIDE bullets
-# Generic Client - Javascript
-
-* The browser is the generic client
-* The root resource returns generic javascript client
-* Only the root resource can be rendered in a browser
-
-.notes Since media type "text/html" is not supported only the root resource
-can be rendered in the browser. The root resource handles the serving of the 
-generic client and functions as the starting point of the interaction.
-
-!SLIDE bullets
-# Pros/Cons Javascript
-
-* +clear separation between normal and generic client
-* +operates the correct way, i.e. no overloading of verbs
-* -needs framework support 
-
-.notes This is a better way for a generic client. You can clearly see the status codes
-and input/output values. You always use the correct verbs. BUT the framework needs to 
-have a options such that links are described fully: rel, href, method, parameters. Otherwise
-the client wouldn't know how to invoke methods.
+# JAX-RS 2.0 #
 
 !SLIDE bullets smaller
+# New stuff
+
+    @@@ java
+    public final class Link {
+      // uri, rel, title, method...
+    }
+    
+    public interface ContainerRequestFilter {
+      public void filter(ContainerRequestContext requestContext) throws IOException;
+    }
+    
+    public interface ContainerResponseFilter {
+      public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+              throws IOException;
+    }
+
+!SLIDE bullets
 # Conslusion
 
 * Pros: 
@@ -516,3 +484,54 @@ becomes a bigger burden than the benefits.
 * Upon every invocation the path is evaluated through the resource tree
 
 .notes We really felt these concepts were missing and it turned out no to be too hard to accomplish 
+
+
+!SLIDE subsection
+# Part II: TEST
+
+!SLIDE bullets
+# Simplicity
+
+* Simple to browse
+* No need to maintain API documentation
+* Javascript developers don't need to ask or inspect code
+
+.notes Really big advantage to have a self-documenting API. We added @Doc("") to
+further add some documentation to the API.
+
+!SLIDE bullets
+# Generic Client - Javascript
+
+* The browser is the generic client
+* The root resource returns generic javascript client
+* Only the root resource can be rendered in a browser
+
+.notes Since media type "text/html" is not supported only the root resource
+can be rendered in the browser. The root resource handles the serving of the 
+generic client and functions as the starting point of the interaction.
+
+!SLIDE bullets
+# Pros/Cons Javascript
+
+* +clear separation between normal and generic client
+* +operates the correct way, i.e. no overloading of verbs
+* -needs framework support 
+
+.notes This is a better way for a generic client. You can clearly see the status codes
+and input/output values. You always use the correct verbs. BUT the framework needs to 
+have a options such that links are described fully: rel, href, method, parameters. Otherwise
+the client wouldn't know how to invoke methods.
+
+!SLIDE bullets incremental
+# Framework support
+
+.notes We have tried different approaches to get framework support the link generation and the constraints.
+
+.notes We built our own webframework that gradually supported some parts of the JAX-RS standard. Initially this seemed to work quite well, but as the requirements for entity marshalling got more complex and more control of the communication was needed, we realized that it would be much better to re-use an existing implementation and allow underlying abstraction leak up to allow more control.
+
+.notes The next approach was to use bytecode manipulation to add constraint validation, automatically add links and also add some methods that were needed
+
+* Own webframework
+* Bytecode manipulation
+* JAX-RS 2.0
+
