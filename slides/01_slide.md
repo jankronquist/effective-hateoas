@@ -22,11 +22,14 @@
 # Outline #
 
 * Hypermedia API:s
-* Recommendations
 * Example
+* Recommendations
 * JAX-RS 2.0
 
 .notes In this presentation we will go through the experiences we have made and explain how this can be implemented using JAX-RS 2.0
+
+!SLIDE subsection
+# Hypermedia API:s #
 
 !SLIDE bullets
 # Example domain #
@@ -154,59 +157,11 @@ Content-Type: application/json;charset=utf-8
 
 .notes Clients don't have to repeat business logic. If a link is there it means the user can navigate the link. If a link is not there it means that the action is not available.
 
-!SLIDE bullets
-#JAX-RS
-
-* Using JAX-RS 1.1
-* Provides basic protocol features
-* Great API, very flexible
-
-
-.notes Great API which is easy to use but quite low level
-
-!SLIDE 
-# JAX-RS Example
-
-    @@@ java
-    @Path("somepath")
-    public class MyResource {
-        @PATH("/other/path/dosomething")
-        @POST 
-        @Produces("application/json")
-        public String doSomething() {
-            return "Hello world";
-        }
-    }
-
-.notes Not much help developing REST level 3. You can create a huge mess by just adding these annotation on your
-classes and methods. Basically it is too general to be usable in developing
-REST level 3. 
+!SLIDE subsection
+# Hypermedia API:s #
 
 
 !SLIDE bullets
-#JAX-RS challenges
-
-* How do you link things together?
-* How do you provide meaning to the resource structure?
-* How do you add restrictions in your resources (admin rights etc)? Or just basic control flow?
-
-.notes JAX-RS and it's @Path is really just a relay mechanism, so you have no help in linking 
-your resources together which is a REST primer. Using bare bone JAX-RS the hypermedia constraint 
-becomes a bigger burden than the benefits. 
-
-!SLIDE bullets small
-# Build your own framework
-
-* Inspiration from project Streamflow
-* Resource DSL 
-* 1-1 reflection of resources and URL
-* Single root resource
-* Everything is linked from root
-* Upon every invocation the path is evaluated through the resource tree
-
-.notes We really felt these concepts were missing and it turned out no to be too hard to accomplish 
-
-!SLIDE bullits
 # Book Shop Demo
 
 .notes show the book shop example. Show the code and show the HTML interface. See the resemblance and try invoking a command and explain the 405 roundtrip. Self-documentation should be mentioned.
@@ -506,4 +461,58 @@ the client wouldn't know how to invoke methods.
 !SLIDE bullets
 # Questions
 
+!SLIDE subsection
+#JAX-RS problems and framework motivation
 
+
+!SLIDE bullets
+#JAX-RS
+
+* Using JAX-RS 1.1
+* Provides basic protocol features
+* Great API, very flexible
+
+
+.notes Great API which is easy to use but quite low level
+
+!SLIDE 
+# JAX-RS Example
+
+    @@@ java
+    @Path("somepath")
+    public class MyResource {
+        @PATH("/other/path/dosomething")
+        @POST 
+        @Produces("application/json")
+        public String doSomething() {
+            return "Hello world";
+        }
+    }
+
+.notes Not much help developing REST level 3. You can create a huge mess by just adding these annotation on your
+classes and methods. Basically it is too general to be usable in developing
+REST level 3. 
+
+
+!SLIDE bullets
+#JAX-RS challenges
+
+* How do you link things together?
+* How do you provide meaning to the resource structure?
+* How do you add restrictions in your resources (admin rights etc)? Or just basic control flow?
+
+.notes JAX-RS and it's @Path is really just a relay mechanism, so you have no help in linking 
+your resources together which is a REST primer. Using bare bone JAX-RS the hypermedia constraint 
+becomes a bigger burden than the benefits. 
+
+!SLIDE bullets small
+# Build your own framework
+
+* Inspiration from project Streamflow
+* Resource DSL 
+* 1-1 reflection of resources and URL
+* Single root resource
+* Everything is linked from root
+* Upon every invocation the path is evaluated through the resource tree
+
+.notes We really felt these concepts were missing and it turned out no to be too hard to accomplish 
