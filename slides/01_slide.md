@@ -10,11 +10,32 @@
 .notes REST is more than HTTP, but for the purposes of this presentation we will only consider HTTP.
 
 !SLIDE bullets
+# Our background #
+
+* Several JAX-RS applications
+* Qi4j and Streamflow
+* Forest
+
+.notes Qi4j is a Java framework with a completely different programming model than traditional Java which aims to make Domain Driven Design possible to implement in Java. In Qi4j the REST API is exposing the possible interactions with the domain as resources. Each interaction becomes a separate resource. The problem with Qi4j is that it is completely different from all other Java code, which makes it hard to find people that wants to learn it. We wanted to take the ideas around REST in Qi4j and implement them using a mainstream Java programming model. The result was a framework we call Forest, which have been successfully used by several projects.
+
+!SLIDE bullets
+# Outline #
+
+* Hypermedia API:s
+* Recommendations
+* Example
+* JAX-RS 2.0
+
+.notes In this presentation we will go through the experiences we have made and explain how this can be implemented using JAX-RS 2.0
+
+!SLIDE bullets
 # Example domain #
 
 * A web shop for e-books
-* Books - isbn, name, price, authors ...
+* properties: isbn, name, price, authors ...
+* commands: buy, download
 
+.notes There is no shopping cart. The application should also run on mobile devices.
 
 !SLIDE bullets
 # Uniform interface #
@@ -78,10 +99,10 @@ Content-Type: application/json;charset=utf-8
 !SLIDE bullets
 # Richardson Maturity Model #
 
-* Level 0
-* Level 1 - Resources
-* Level 2 - HTTP Verbs
 * Level 3 - Hypermedia Controls
+* Level 2 - HTTP Verbs
+* Level 1 - Resources
+* Level 0
 
 .notes Level 2 is CRUD services which is very useful, eg databases, S3. 
 
@@ -102,6 +123,11 @@ Content-Type: application/json;charset=utf-8
       },
 
 .notes Hypermedia is just links, typically embedded in the representation. Besides the target URI (actually IRI) a link must include semantic information to allow automatic processing. This is done using the rel attribute that describes the relationship between the current resource and the target resource. Links can also include other attributes, for example "title" which is a human-readable identifier, "name" to distinguish between links with the same "rel".
+
+!SLIDE bullets
+# Use absolute links #
+
+* JAX\_RS_SPEC-5
 
 .notes Since JAX-RS don't distinguish between trailing slash relative links must be built differently depending on how the resource was accessed (http://java.net/jira/browse/JAX_RS_SPEC-5)
 
@@ -127,20 +153,6 @@ Content-Type: application/json;charset=utf-8
 .notes Since the clients only follow links they don't care about how the URLs are structured. When constructing the server we are free to chose a structure that fits our purposes.
 
 .notes Clients don't have to repeat business logic. If a link is there it means the user can navigate the link. If a link is not there it means that the action is not available.
-
-!SLIDE bullets
-# The 3 tiers have evolved #
-
-* TODO: Image
-
-.notes A few years ago people thought of a web applications a 3 simple tiers (browser + web server + database). Now we often have different types of clients (web + mobile + integration?). Different backends (the whole NoSQL thing, integration with other systems). 
-When designing our API we need to think about different clients. Complex backends with complex business logic or even complex non-functional behavior might be reflected in our API (eg long running transactions, authentication...)
-
-
-
-!SLIDE subsection
-#Part I: Construction
-
 
 !SLIDE bullets
 #JAX-RS
@@ -279,7 +291,6 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 * Media-type extension impossible
 * Only child linking easy
 * No separation of generic client
-* Generic client support invasive
 
 .notes This seems only solvable by combining JAX-RS 2.0 and Forest.
 
