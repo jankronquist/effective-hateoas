@@ -277,9 +277,9 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 !SLIDE bullets
 # Framework disadvantages
 
-* No JAX-RS dependency so,
 * Request/Response handling is re-implemented
 * Media-type extension impossible
+* No separation of generic client
 
 .notes This seems only solvable by combining JAX-RS 2.0 and Forest.
 
