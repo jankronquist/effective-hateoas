@@ -182,7 +182,7 @@ REST level 3.
 your resources together which is a REST primer. Using bare bone JAX-RS the hypermedia constraint 
 becomes a bigger burden than the benefits. 
 
-!SLIDE bullets
+!SLIDE bullets small
 # Build your own framework
 
 * Inspiration from project Streamflow
@@ -233,16 +233,13 @@ becomes a bigger burden than the benefits.
     public class BookResource
         implements BookResource {
              
-        Book book;
+        private Book book;
         public BookResource( String id ) {
-            // lookup particular book
-            book = ...
+            book = // lookup book
             if ( book == null ) // throw 404
         }
 
-        public void buy( PurchaseDTO dto ) {
-            ...
-        }
+        public void buy() {...}
 
         public InputStream download() {...}
      }
@@ -256,7 +253,7 @@ download it.
 !SLIDE 
     @@@ java
     @HasBoughtBook(false)
-    public void buy(PurchaseDTO dto) { ... }
+    public void buy() { ... }
 
     @HasBoughtBook(true)
     public InputStream download() {...}
@@ -269,6 +266,7 @@ download it.
 * POJO code because of conventions
 * Discovery and documentation for free
 * Hierarchical constraints easy
+* Intuitive and effective
 
 .notes Quite small framework to implements which turned very popular in our organization. We thought
 we were done with REST but these conventions might be very handy and maybe even a prerequisite for
@@ -279,17 +277,20 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 
 * Request/Response handling is re-implemented
 * Media-type extension impossible
+* Only child linking easy
 * No separation of generic client
+* Generic client support invasive
 
 .notes This seems only solvable by combining JAX-RS 2.0 and Forest.
 
-!SLIDE bullets
+!SLIDE bullets small
 # REST level 3 Framework Should
 
 * Enforce resources inter-linking
 * Support notion of root resource
 * Be mediatype flexible (easy to define own mediatype)
 * Use the resource structure when mapping the URL to resource
+* Provide non-invasive generic client
 
 .notes Interlinking is vastly overlooked in the REST community, yet being the key point in 
 Fieldings dissertation: You must be able to consume a REST API without any other knowledge 
@@ -455,26 +456,6 @@ than generic understanding of standard mediatypes and a starting URL.
 further add some documentation to the API.
 
 !SLIDE bullets
-# Genric Client - HTML
-
-* The browser is the generic client (prefered media type is text/html)
-* Any resource can be rendered in browser
-* Looks like ugly web site
-
-!SLIDE bullets
-# Pros/Cons HTML
-
-* +straight forward
-* +works in lynx
-* -incorrect verbs for PUT and DELETE
-* -different API than a real mediatype
-* -unclear separation between normal and generic client
-
-.notes This is the only one we have used and it is very useful. But the
-incorrect verbs can lead to misuse of the API - we have seen javascript client
-revert to text/html "to make it work"
-
-!SLIDE bullets
 # Generic Client - Javascript
 
 * The browser is the generic client
@@ -497,58 +478,7 @@ and input/output values. You always use the correct verbs. BUT the framework nee
 have a options such that links are described fully: rel, href, method, parameters. Otherwise
 the client wouldn't know how to invoke methods.
 
-
-!SLIDE subsection
-# Part III: Consumption
-
-
-!SLIDE bullets
-# Consumption definition
-
-* External client consuming the API
-* Client is NOT when using mediatype text/html on the API
-
-.notes It is common in the CRUD REST frameworks that the REST API IS the client. It seems like a really bad idea to mix your API with presentation logic. And there may not be a 1-1 relation
-between a resource and a view.
-
-
-!SLIDE bullets
-# A Client
-
-* Generic knowledge: how to recognize a link
-* Documented knowledge: parameters + media types + rels
-* Root URL
-
-.notes the generic knowledge is how to parse the discovered resources from the API, mainly 
-how to recognize links. The documented knowledge is about how a specific method is supposed
-to be invoked - e.g. what parameter, what method.
-
-!SLIDES bullets 
-# State Machine
-
-* Client acts like a state machine
-* Discovery on the API
-* Based on the discovery presents what to do next for the user
-
-!SLIDE bullets
-# A Step Back
-
-* Classic (and level 2) approach is to let the client know:
-* All href for methods
-* All server side state rules
-
-.notes In this case the client must replicate all server side logic to know which operation is enabled for a given state. 
-
-!SLIDE bullets
-# A Step Forward
-
-* When leveraging level 3 simply base your client on what you discover
-* e.g. If you don't see the logout link, don't display the logout button
-
-.notes When doing this the client focus becomes handling the presentation. That is REST is like a detail in the client code. 
-
-
-!SLIDE bullets
+!SLIDE bullets smaller
 # Conslusion
 
 * Pros: 
