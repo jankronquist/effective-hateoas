@@ -32,15 +32,6 @@
 # Hypermedia API:s #
 
 !SLIDE bullets
-# Example domain #
-
-* A web shop for e-books
-* properties: isbn, name, price, authors ...
-* commands: buy, download
-
-.notes There is no shopping cart. The application should also run on mobile devices.
-
-!SLIDE bullets
 # Uniform interface #
 
 .notes The simplicity of REST comes from the uniform interface. Once you know this you can interact with any resource. For HTTP the uniform interface consists of:
@@ -89,6 +80,25 @@ Content-Type: application/json;charset=utf-8
 
 .notes The response can contain a representation of a the resource and the format of the representation is called a mediatype.
 
+!SLIDE bullets
+# Example domain #
+
+* A web shop for e-books
+* properties: isbn, name, price, authors ...
+* commands: buy, download
+
+.notes There is no shopping cart. The application should also run on mobile devices.
+
+!SLIDE bullets incremental
+# Interactions #
+
+* View book details
+* Query and browse for books
+* Buy book
+* Download book
+
+.notes The resources are the interactions exposed for a web client.
+
 !SLIDE bullets incremental
 # Resources are not domain objects #
 
@@ -102,17 +112,31 @@ Content-Type: application/json;charset=utf-8
 !SLIDE bullets
 # Richardson Maturity Model #
 
-* Level 3 - Hypermedia Controls
 * Level 2 - HTTP Verbs
 * Level 1 - Resources
 * Level 0
 
 .notes Level 2 is CRUD services which is very useful, eg databases, S3. 
 
-.notes Level 3 means that the resource representation contains links to other resources
-
 !SLIDE small
+# Current JAX-RS #
+
+    @@@ java
+    // Resources
+    @Path("myresource")
+    
+    // Verbs
+    @GET @POST @DELETE
+    
+    // Status codes
+    return Response.status(Status.CONFLICT);
+    throw new WebApplicationException(...)
+
+
+!SLIDE bullets small
 # Hypermedia #
+
+* Level 3 - Hypermedia Controls
 
     @@@ xml
     <link rel="payment" href="http://example.org/product/123/buy"/>
@@ -125,14 +149,9 @@ Content-Type: application/json;charset=utf-8
         },
       },
 
+.notes Level 3 means that the resource representation contains links to other resources
+
 .notes Hypermedia is just links, typically embedded in the representation. Besides the target URI (actually IRI) a link must include semantic information to allow automatic processing. This is done using the rel attribute that describes the relationship between the current resource and the target resource. Links can also include other attributes, for example "title" which is a human-readable identifier, "name" to distinguish between links with the same "rel".
-
-!SLIDE bullets
-# Use absolute links #
-
-* JAX\_RS_SPEC-5
-
-.notes Since JAX-RS don't distinguish between trailing slash relative links must be built differently depending on how the resource was accessed (http://java.net/jira/browse/JAX_RS_SPEC-5)
 
 !SLIDE bullets
 # Level 3 example #
@@ -158,7 +177,7 @@ Content-Type: application/json;charset=utf-8
 .notes Clients don't have to repeat business logic. If a link is there it means the user can navigate the link. If a link is not there it means that the action is not available.
 
 !SLIDE subsection
-# Example #
+# Example using Forest #
 
 
 !SLIDE bullets
@@ -231,7 +250,7 @@ download it.
 
 * Discovery and documentation for free
 * Conventions resulted in clean code 
-* Hierarchical constraints
+* Declarative constraints
 
 .notes Quite small framework to implements which turned very popular in our organization. We thought
 we were done with REST but these conventions might be very handy and maybe even a prerequisite for
@@ -282,24 +301,29 @@ than generic understanding of standard mediatypes and a starting URL.
 
 .notes REST APIs should have a single wellknown URL. Reflect this by having a single JAX-RS root resource
 
-!SLIDE
-# Path as method name #
-
-    @@@ java
-    @Path("orders")
-    public OrdersResource orders() {
-        return ordersResource;
-    }
-
-
 !SLIDE small
 # Sub resource #
 
     @@@ java
   	@Path("{id}")
-  	public OrderResource order(@PathParam("id") String id) {
-  		return new OrderResource(id);
+  	public BookResource book(@PathParam("id") String id) {
+  		return new BookResource(id);
   	}
+  	
+    class BookResource {
+      @GET
+      public BookDTO get() {}
+    }
+
+!SLIDE
+# Path as method name #
+
+    @@@ java
+    @Path("book")
+    public BooksResource book() {
+        return booksResource;
+    }
+
 
 !SLIDE small
 # Classic JAX-RS #
@@ -396,13 +420,17 @@ than generic understanding of standard mediatypes and a starting URL.
 # JAX-RS 2.0 #
 
 !SLIDE bullets smaller
-# New stuff
+# Link #
 
     @@@ java
     public final class Link {
       // uri, rel, title, method...
     }
+
+!SLIDE bullets smaller
+# Filters #
     
+    @@@ java
     public interface ContainerRequestFilter {
       public void filter(ContainerRequestContext requestContext) throws IOException;
     }
@@ -411,6 +439,24 @@ than generic understanding of standard mediatypes and a starting URL.
       public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
               throws IOException;
     }
+
+!SLIDE bullets
+# Use absolute links #
+
+* JAX\_RS_SPEC-5
+
+.notes Since JAX-RS don't distinguish between trailing slash relative links must be built differently depending on how the resource was accessed (http://java.net/jira/browse/JAX_RS_SPEC-5)
+
+!SLIDE bullets
+# Summary
+
+* Expose the interactions
+* Make most links point to child resources
+* Establish and follow conventions
+* Framework code needed
+
+!SLIDE bullets
+# Questions
 
 !SLIDE bullets
 # Conslusion
@@ -425,9 +471,6 @@ than generic understanding of standard mediatypes and a starting URL.
 
 .notes Having written both level 2 and level 3 clients, there is no mistake - level 3 is vastly simpler. But the framework is really missing. The benefit of producing level 3 does not obviously outweigh the benefits you get - that is probably the reason why level 3 REST is not implemented widely. 
 
-
-!SLIDE bullets
-# Questions
 
 !SLIDE subsection
 #JAX-RS problems and framework motivation
