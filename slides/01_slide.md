@@ -134,9 +134,9 @@ Content-Type: application/json;charset=utf-8
 
 
 !SLIDE bullets small
-# Hypermedia #
+# Level 3 #
 
-* Level 3 - Hypermedia Controls
+* Hypermedia Controls
 
     @@@ xml
     <link rel="payment" href="http://example.org/product/123/buy"/>
@@ -169,8 +169,7 @@ Content-Type: application/json;charset=utf-8
 !SLIDE bullets
 # Level 3 consequences #
 
-* Clients don't care about URL structure
-* Clients are DRY
+* AVAILABLE IN KEYNOTE
 
 .notes Since the clients only follow links they don't care about how the URLs are structured. When constructing the server we are free to chose a structure that fits our purposes.
 
@@ -373,7 +372,11 @@ than generic understanding of standard mediatypes and a starting URL.
     @@@ java
     class BookResource {
       @GET
-      public BookDTO get() {}
+      public BookDTO get(@Context UriInfo uriInfo) {
+        BookDTO result = ...;
+        result.links = HATEOAS.getLinks(this, uriInfo);
+        return result;
+      }
 	
       @Path("buy") @POST
       @Rel("payment")
