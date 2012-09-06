@@ -4,7 +4,7 @@ import com.jayway.forest.legacy.roles.Resource;
 
 public class RootResource implements Resource {
 
-    public Resource books() {
+    public Resource book() {
         return new BooksResource();
     }
 }

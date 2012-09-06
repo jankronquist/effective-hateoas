@@ -5,9 +5,22 @@
 # Effective HATEOAS #
 # with JAX-RS #
 
+!SLIDE 
+# Practitian vs Professor #
+
 .notes The thing that programmers like about REST is the simplicity. So when architects start talking about hypermedia and all kinds of weird constraints many developers just stops listening. Too complex. Too much work. We want to show that hypermedia is also simple and that there are ways of minimizing the amount of work necessery. 
 
 .notes REST is more than HTTP, but for the purposes of this presentation we will only consider HTTP.
+
+!SLIDE bullets
+# JAX-RS 2.0 #
+
+    @@@ java
+    public final class Link {
+      // uri, rel, title, method...
+    }
+
+.notes JAX-RS 2.0 adds the Link class. Is this enough to create hypermedia API:s? ??? No! If the programmer is responsible for adding links everywhere this will not be used as it creates massive boilerplate. We think a framework is needed that minimizes the amout of links the programmer has to create manually. All the resources in the application must be accessible via links without the programmerer having to write a single line of code.
 
 !SLIDE bullets
 # Our background #
@@ -191,12 +204,13 @@ Content-Type: application/json;charset=utf-8
     public class RootResource 
          implements Resource {
         
-        public Resource books() {
+        public Resource book() {
             return new BooksResource();
         }
     }
 
 !SLIDE 
+# Collection resource 
 
     @@@ java
     public class BooksResource 
@@ -206,17 +220,18 @@ Content-Type: application/json;charset=utf-8
            return new BookResource( id );
         }
         
-        public List<Link> items() {
+        public List<Link> discover() {
            // lookup books from repository 
            return LinksBuilder.asList( books );
         }
     }
 
 !SLIDE
+# Book resource
 
     @@@ java
     public class BookResource
-        implements BookResource {
+        implements Resource {
              
         private Book book;
         public BookResource( String id ) {
@@ -230,12 +245,8 @@ Content-Type: application/json;charset=utf-8
      }
 
 !SLIDE 
-# Browse it!
+# Declarative constraints
 
-.notes Notice the enablement in the Book resource - you have to buy it before you can 
-download it.
-
-!SLIDE 
     @@@ java
     @HasBoughtBook(false)
     public void buy() { ... }
@@ -268,22 +279,19 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 
 .notes This seems only solvable by combining JAX-RS 2.0 and Forest.
 
-!SLIDE bullets small
-# REST level 3 Framework Should
-
-* Enforce resources inter-linking
-* Support notion of root resource
-* Be mediatype flexible (easy to define own mediatype)
-* Use the resource structure when mapping the URL to resource
-* Provide non-invasive generic client
-
-.notes Interlinking is vastly overlooked in the REST community, yet being the key point in 
-Fieldings dissertation: You must be able to consume a REST API without any other knowledge 
-than generic understanding of standard mediatypes and a starting URL. 
-
 !SLIDE subsection
-# Recommendations #
+# Framework on top of JAX-RS #
 
+!SLIDE bullets
+# Requirements #
+
+* Single root resource
+* Rel attribute support
+* All resources linked
+* Declarative constraints
+* Generic client
+
+.notes All the resources in the application must be accessible via links without the programmerer having to write a single line of code.
 
 !SLIDE
 # Only a single Root Resource #
@@ -291,38 +299,53 @@ than generic understanding of standard mediatypes and a starting URL.
     @@@ java
     @Path("")
     public class RootResource {
-        @GET 
-        @Produces("text/plain")
-        public String get() {
-            return "Hello world";
-        }
+      @Path("book")
+      public BooksResource book() {
+          return booksResource;
+      }
     }
 
 .notes REST APIs should have a single wellknown URL. Reflect this by having a single JAX-RS root resource
 
-!SLIDE small
-# Sub resource #
+!SLIDE
+# Rel annotation #
 
     @@@ java
-  	@Path("{id}")
-  	public BookResource book(@PathParam("id") String id) {
-  		return new BookResource(id);
-  	}
-  	
     class BookResource {
-      @GET
-      public BookDTO get() {}
+      @Path("buy") @POST
+      @Rel("payment")
+      public ReceiptDTO buy() {}
     }
 
 !SLIDE
-# Path as method name #
+# All resources link #
 
     @@@ java
-    @Path("book")
-    public BooksResource book() {
-        return booksResource;
+    public interface ContainerResponseFilter {
+      public void filter(
+            ContainerRequestContext requestContext, 
+            ContainerResponseContext responseContext)
+              throws IOException;
     }
 
+.notes Links can be generated automatically using reflection on the target resource. Always include links to all resource-methods in the resource class.
+
+!SLIDE
+# Declarative constraints #
+
+    @@@ java
+    public interface ContainerRequestFilter {
+      public void filter(ContainerRequestContext requestContext) throws IOException;
+    }
+
+.notes Constraints can be enforced when the request is performed
+
+!SLIDE bullets
+# Generic client requirements #
+
+* Discover allowed verbs
+* Discover parameters
+* Discover mediatypes
 
 !SLIDE small
 # Classic JAX-RS #
@@ -340,7 +363,7 @@ than generic understanding of standard mediatypes and a starting URL.
 .notes Paths are created on an ad hoc basis, aiming for nice-looking URI:s that a client can understand.
 
 !SLIDE small
-# Resource structure #
+# Proposed structure #
 
     @@@ java
     @Path("")
@@ -360,88 +383,24 @@ than generic understanding of standard mediatypes and a starting URL.
       public ReceiptDTO buy() {}
     }
 
+    // GET /book/123
+    rootResource.book().id("123").get();
+
 .notes Related functionality is grouped together.
 
 .notes use child resources whenever a parent creates links to the child. Structure your URLs so that most links point to child resources. 80/20 rule
 
 .notes TODO: How to motivate the deviation from standard JAX-RS? There are lots of things that probably don't work when using subresources... eg Link.fromResourceMethod
-
-!SLIDE small
-# Resource reflection
-
-    @@@ java
-    class BookResource {
-      @GET
-      public BookDTO get(@Context UriInfo uriInfo) {
-        BookDTO result = ...;
-        result.links = HATEOAS.getLinks(this, uriInfo);
-        return result;
-      }
-	
-      @Path("buy") @POST
-      @Rel("payment")
-      public ReceiptDTO buy() {}
-    }
-
-.notes By using reflection we can generate relevant links. For example when handling a request to get a book we can generate a link to the buy resource. 
-
-!SLIDE small
-# Constraints
-
-    @@@ java
-    class BookResource {
-      @Path("buy") @POST
-      @Rel("payment")
-      @HasBoughtBook(false)
-      public ReceiptDTO buy() {}
-
-      @Path("download") @GET
-      @Rel("enclosure")
-      @HasBoughtBook(true)
-      public InputStream download() {}
-    }
-
-.notes Since we generate links by using reflection we can also add declarative constraints that specify if the link should be included or not. 
-
-!SLIDE small
-# Constraints and subresources
-
-    @@@ java
-    public class RootResource {
-      @Path("admin")
-      @HasPrivilege("administrator")
-      public AdminResource admin() {
-          return adminResource;
-      }
-    }
-
-.notes Since we use subresources we can specify constraints on the methods for retrieving subresources and we can declarative control what resources are available!
-
-.notes How to implement this using JAX-RS?
-
-!SLIDE subsection
-# JAX-RS 2.0 #
-
-!SLIDE bullets smaller
-# Link #
-
-    @@@ java
-    public final class Link {
-      // uri, rel, title, method...
-    }
-
-!SLIDE bullets smaller
-# Filters #
     
-    @@@ java
-    public interface ContainerRequestFilter {
-      public void filter(ContainerRequestContext requestContext) throws IOException;
-    }
-    
-    public interface ContainerResponseFilter {
-      public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
-              throws IOException;
-    }
+!SLIDE bullets
+# Summary
+
+* Framework code needed
+* Declarative constraints needed
+* Make most links point to child resources
+
+!SLIDE bullets
+# Questions
 
 !SLIDE bullets
 # Use absolute links #
@@ -450,16 +409,6 @@ than generic understanding of standard mediatypes and a starting URL.
 
 .notes Since JAX-RS don't distinguish between trailing slash relative links must be built differently depending on how the resource was accessed (http://java.net/jira/browse/JAX_RS_SPEC-5)
 
-!SLIDE bullets
-# Summary
-
-* Expose the interactions
-* Make most links point to child resources
-* Establish and follow conventions
-* Framework code needed
-
-!SLIDE bullets
-# Questions
 
 !SLIDE bullets
 # Conslusion

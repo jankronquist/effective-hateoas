@@ -1,6 +1,7 @@
 package com.jayway.javaone.sample.resources;
 
 import com.jayway.forest.legacy.constraint.DoNotDiscover;
+import com.jayway.forest.legacy.exceptions.BadRequestException;
 import com.jayway.forest.legacy.roles.Resource;
 import com.jayway.javaone.sample.constraints.HasBoughtBook;
 import com.jayway.javaone.sample.domain.Book;
@@ -20,7 +21,10 @@ public class BookResource implements Resource {
 	}
 
 	@HasBoughtBook(false)
-    public void buy() {
+    public void buy(PinDTO pin) {
+		if (!"1234".equals(pin.getPin())) {
+			throw new BadRequestException("Invalid PIN code");
+		}
 		CustomerRepository.getCurrent().bought(book);
     }
 
