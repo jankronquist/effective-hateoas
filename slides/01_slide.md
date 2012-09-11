@@ -45,55 +45,6 @@
 # Hypermedia API:s #
 
 !SLIDE bullets
-# Uniform interface #
-
-.notes The simplicity of REST comes from the uniform interface. Once you know this you can interact with any resource. For HTTP the uniform interface consists of:
-
-    an initial line
-    header lines
-    blank line
-    optional message body
-
-.notes Constrast this to binary protocols where you can't see whats going on, or SOAP that is built on top of HTTP.
-
-!SLIDE bullets
-# Example request/response #
-
-.notes AVAILABLE IN KEYNOTE
-
-.notes The HTTP uniform interface defines a number of verbs and status codes with very specific semantics. For example a GET request cannot modify a resource. 
-
-.notes The flexibility comes from identified resources and their representations. The verbs are designed to be efficient for large-grain hypermedia data transfer
-
-GET /api/books/9780596805838
-
-200 OK
-Content-Type: application/json;charset=utf-8
-
-{
-  "isbn": "9780596805838",
-  "title": "REST in Practice",
-  "authors": [
-    "Jim Webber",
-    "Savas Parastatidis",
-    "Ian Robinson"
-  ],
-  "publisher": "O'Reilly Media",
-  "supplier_id": "ELIB",
-  "price": "31.99",
-  "language": "English",
-  "imageURL": "/images/9780596805838",
-  "downloadable_formats": [ 
-    "EPUB",
-    "PDF"
-  ],
-}
-
-.notes When performing a HTTP request besides the verb you must also identify the resource. More about resource identifiers later on.
-
-.notes The response can contain a representation of a the resource and the format of the representation is called a mediatype.
-
-!SLIDE bullets
 # Example domain #
 
 * A web shop for e-books
@@ -117,8 +68,8 @@ Content-Type: application/json;charset=utf-8
 
 * `/book/123` = a specific book
 * `/book` = a collection of books
-* `/book/123/buy` = identifies that the user wants to buy the book
 * `/ownedbooks` = a collection of books that the user owns
+* `/book/123/buy` = identifies that the user wants to buy the book
 
 .notes Anything that can be identified. document, person, todays weather. Very generic, more than just domain objects
 
@@ -146,15 +97,13 @@ Content-Type: application/json;charset=utf-8
     throw new WebApplicationException(...)
 
 
-!SLIDE bullets small
-# Level 3 #
+!SLIDE bullets smaller
+# Level 3 - Hypermedia Controls #
 
-* Hypermedia Controls
-
-    @@@ xml
+    XML
     <link rel="payment" href="http://example.org/product/123/buy"/>
 
-    @@@ javascript
+    JSON
     "_links": {
         "payment": { 
           "href": "/product/123/buy", 
@@ -169,24 +118,15 @@ Content-Type: application/json;charset=utf-8
 !SLIDE bullets
 # Level 3 example #
 
-* TODO: Image showing a graph of related resources
+* AVAILABLE IN KEYNOTE
 
-.notes AVAILABLE IN KEYNOTE
+.notes 
 
 .notes Go through an example where a client navigates through a set of resources using links to purchase and download a book.
 
 .notes The application state is where in all this the client currently has navigated and where the client can go from here.
 
 .notes The Hypermedia constraint means that client should only know the root URI and all state changes driven by links.
-
-!SLIDE bullets
-# Level 3 consequences #
-
-* AVAILABLE IN KEYNOTE
-
-.notes Since the clients only follow links they don't care about how the URLs are structured. When constructing the server we are free to chose a structure that fits our purposes.
-
-.notes Clients don't have to repeat business logic. If a link is there it means the user can navigate the link. If a link is not there it means that the action is not available.
 
 !SLIDE subsection
 # Example using Forest #
@@ -530,3 +470,12 @@ the client wouldn't know how to invoke methods.
 * Bytecode manipulation
 * JAX-RS 2.0
 
+!SLIDE bullets
+# Uniform interface #
+
+.notes The simplicity of REST comes from the uniform interface. Once you know this you can interact with any resource. For HTTP the uniform interface consists of:
+
+    an initial line
+    header lines
+    blank line
+    optional message body
