@@ -13,16 +13,6 @@
 .notes REST is more than HTTP, but for the purposes of this presentation we will only consider HTTP.
 
 !SLIDE bullets
-# JAX-RS 2.0 #
-
-    @@@ java
-    public final class Link {
-      // uri, rel, title, method...
-    }
-
-.notes JAX-RS 2.0 adds the Link class. Is this enough to create hypermedia API:s? ??? No! If the programmer is responsible for adding links everywhere this will not be used as it creates massive boilerplate. We think a framework is needed that minimizes the amout of links the programmer has to create manually. All the resources in the application must be accessible via links without the programmerer having to write a single line of code.
-
-!SLIDE bullets
 # Our background #
 
 * Several JAX-RS applications
@@ -30,16 +20,6 @@
 * Forest
 
 .notes Qi4j is a Java framework with a completely different programming model than traditional Java which aims to make Domain Driven Design possible to implement in Java. In Qi4j the REST API is exposing the possible interactions with the domain as resources. Each interaction becomes a separate resource. The problem with Qi4j is that it is completely different from all other Java code, which makes it hard to find people that wants to learn it. We wanted to take the ideas around REST in Qi4j and implement them using a mainstream Java programming model. The result was a framework we call Forest, which have been successfully used by several projects.
-
-!SLIDE bullets
-# Outline #
-
-* Hypermedia API:s
-* Example
-* Recommendations
-* JAX-RS 2.0
-
-.notes In this presentation we will go through the experiences we have made and explain how this can be implemented using JAX-RS 2.0
 
 !SLIDE subsection
 # Hypermedia API:s #
@@ -72,6 +52,7 @@
 !SLIDE bullets incremental
 # Resources are not domain objects #
 
+* `GET /book/123/details`
 * `GET /book/123/download`
 * `POST /book/123/buy`
 * `GET /owned`
@@ -190,11 +171,22 @@
      }
 
 !SLIDE 
+# Constraint problem
+
+     @@@ java
+     public void buy(PinDTO pin) {
+       if (hasBoughtBook()) {
+         throw new WebApplicationException(...);
+       }
+     }
+
+
+!SLIDE 
 # Declarative constraints
 
     @@@ java
     @HasBoughtBook(false)
-    public void buy() { ... }
+    public void buy(PinDTO pin) { ... }
 
     @HasBoughtBook(true)
     public InputStream download() {...}
@@ -216,25 +208,42 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 # Forest disadvantages
 
 * Very basic HTTP support
-* No support for mediatypes, headers
 * Very limited control for developer
-* Only child linking easy
+
+.notes No support for mediatypes, headers. Only child linking easy. Rel attribute not supported well enough.
+
+!SLIDE bullets
+# Forest conclusion
+
+* Great experiment
+* Served us well
+* Not general purpose
 
 .notes The framework served our purposes very well and we could live with these limitations
 
-.notes This seems only solvable by combining JAX-RS 2.0 and Forest.
-
 !SLIDE subsection
-# Framework on top of JAX-RS #
+# JAX-RS level 3? #
 
 !SLIDE bullets
-# Requirements #
+# JAX-RS 2.0 #
+
+    @@@ java
+    public final class Link {
+      public URI getUri() {}
+      public String getTitle() {}
+      public String getRel() {}
+      ...
+    }
+
+.notes JAX-RS 2.0 adds the Link class. Is this enough to create hypermedia API:s? ??? No! If the programmer is responsible for adding links everywhere this will not be used as it creates massive boilerplate. We think a framework is needed that minimizes the amout of links the programmer has to create manually. All the resources in the application must be accessible via links without the programmerer having to write a single line of code.
+
+!SLIDE bullets
+# Framework requirements #
 
 * Single root resource
 * Rel attribute support
-* All resources linked
+* Sensible default links
 * Declarative constraints
-* Generic client
 
 .notes All the resources in the application must be accessible via links without the programmerer having to write a single line of code.
 
@@ -259,11 +268,44 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
     class BookResource {
       @Path("buy") @POST
       @Rel("payment")
-      public ReceiptDTO buy() {}
+      public ReceiptDTO buy(@FormParam("pin") String pin) { ... }
     }
 
 !SLIDE
-# All resources link #
+# Sensible default links #
+
+    @@@ java
+    public class BookResource {
+      @GET
+      public Response get() {
+        return Response.ok(toDTO(book))
+          .build();
+      }
+      @Path("buy") 
+      @POST
+      @Rel("payment")
+      public ReceiptDTO buy(@FormParam("pin") String pin) { ... }
+    }
+
+!SLIDE
+# Use reflection #
+
+    @@@ java
+    public class BookResource {
+      @GET
+      public Response get() {
+        return Response.ok(toDTO(book))
+          .links(Framework.makeLinks(this))
+          .build();
+      }
+      @Path("buy") 
+      @POST
+      @Rel("payment")
+      public ReceiptDTO buy(@FormParam("pin") String pin) { ... }
+    }
+
+!SLIDE
+# ContainerResponseFilter #
 
     @@@ java
     public interface ContainerResponseFilter {
@@ -279,70 +321,30 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 # Declarative constraints #
 
     @@@ java
+    public class BookResource {
+      @Path("buy") 
+      @POST
+      @Rel("payment")
+      @HasBoughtBook(false)
+      public ReceiptDTO buy(@FormParam("pin") String pin) { ... }
+    }
+
+!SLIDE
+# ContainerRequestFilter #
+
+    @@@ java
     public interface ContainerRequestFilter {
       public void filter(ContainerRequestContext requestContext) throws IOException;
     }
 
 .notes Constraints can be enforced when the request is performed
-
-!SLIDE bullets
-# Generic client requirements #
-
-* Discover allowed verbs
-* Discover parameters
-* Discover mediatypes
-
-!SLIDE small
-# Classic JAX-RS #
-
-    @@@ java
-    @Path("book") @GET
-    public BooksDTO getBooks() {}
-
-    @Path("book/{isbn}") @GET
-    public BookDTO getBook(@PathParam("isbn") String isbn) {}
-
-    @Path("buy") @POST
-    public ReceiptDTO buy(@FormParam("isbn") String isbn) {}
-    
-.notes Paths are created on an ad hoc basis, aiming for nice-looking URI:s that a client can understand.
-
-!SLIDE small
-# Proposed structure #
-
-    @@@ java
-    @Path("")
-    class RootResource {}
-    class BooksResource {
-      @GET
-      public BooksDTO get() {}
-
-      @Path("{isbn}")
-      public BookResource item() {}
-    }
-    class BookResource {
-      @GET
-      public BookDTO get() {}
-  		
-      @Path("buy") @POST
-      public ReceiptDTO buy() {}
-    }
-
-    // GET /book/123
-    rootResource.book().id("123").get();
-
-.notes Related functionality is grouped together.
-
-.notes use child resources whenever a parent creates links to the child. Structure your URLs so that most links point to child resources. 80/20 rule
-
-.notes TODO: How to motivate the deviation from standard JAX-RS? There are lots of things that probably don't work when using subresources... eg Link.fromResourceMethod
     
 !SLIDE bullets
 # Summary
 
-* Framework code needed
+* Framework needed on top of JAX-RS
 * Declarative constraints needed
-* Make most links point to child resources
+* Sensible default links
 
 !SLIDE bullets
 # Questions
