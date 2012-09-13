@@ -49,7 +49,6 @@
 
 * A web shop for e-books
 * properties: isbn, name, price, authors ...
-* commands: buy, download
 
 .notes There is no shopping cart. The application should also run on mobile devices.
 
@@ -61,15 +60,21 @@
 * Buy book
 * Download book
 
-.notes The resources are the interactions exposed for a web client.
+.notes Interactions is what a client can do in our application. The resources are the interactions exposed for a web client.
+
+!SLIDE bullets incremental
+# CRUD resources #
+
+* `<type>/<id>`
+* `PUT, GET, PATCH, DELETE /book/123`
+* `POST, GET /book`
 
 !SLIDE bullets incremental
 # Resources are not domain objects #
 
-* `/book/123` = a specific book
-* `/book` = a collection of books
-* `/ownedbooks` = a collection of books that the user owns
-* `/book/123/buy` = identifies that the user wants to buy the book
+* `GET /book/123/download`
+* `POST /book/123/buy`
+* `GET /owned`
 
 .notes Anything that can be identified. document, person, todays weather. Very generic, more than just domain objects
 
@@ -179,7 +184,7 @@
             if ( book == null ) // throw 404
         }
 
-        public void buy() {...}
+        public void buy(PinDTO pin) {...}
 
         public InputStream download() {...}
      }
@@ -196,7 +201,7 @@
     
 
 !SLIDE bullets
-# Framework advantages
+# Forest advantages
 
 * Discovery and documentation for free
 * Conventions resulted in clean code 
@@ -208,12 +213,12 @@ a REST framework but REST is more than URL conventions, namely hypermedia.
 
 
 !SLIDE bullets
-# Framework disadvantages
+# Forest disadvantages
 
 * Very basic HTTP support
 * No support for mediatypes, headers
+* Very limited control for developer
 * Only child linking easy
-* No separation of generic client
 
 .notes The framework served our purposes very well and we could live with these limitations
 
