@@ -2,12 +2,12 @@ package com.jayway.javaone.sample.domain;
 
 public class Book {
 	private final String id;
-	private final String name;
+	private final String title;
 	private final String author;
 
 	public Book(String id, String name, String author) {
 		this.id = id;
-		this.name = name;
+		this.title = name;
 		this.author = author;
 	}
 	
@@ -15,8 +15,8 @@ public class Book {
 		return id;
 	}
 
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 
 	public String getAuthor() {
