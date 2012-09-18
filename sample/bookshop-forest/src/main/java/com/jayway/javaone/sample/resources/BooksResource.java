@@ -16,7 +16,7 @@ public class BooksResource implements IdDiscoverableResource {
     public List<Linkable> discover() {
         List<Linkable> links = new ArrayList<Linkable>();
         for (Book book : BookRepository.findAll()) {
-            links.add( new Linkable(book.getId()) );
+            links.add( new Linkable(book.getId(), book.getTitle()) );
 		}
         return links;
     }
